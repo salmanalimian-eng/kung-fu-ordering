@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { formatPrice } from '../data/menu'
 import {
   cartTotal,
@@ -33,8 +33,21 @@ export function CartDrawer({
   const [notes, setNotes] = useState('')
   const [error, setError] = useState('')
   const [order, setOrder] = useState<Order | null>(null)
+  const [leaving, setLeaving] = useState<string[]>([])
+  const [shake, setShake] = useState(0)
+  const lastTotal = useRef(0)
 
   const total = cartTotal(lines)
+  const totalDir = total > lastTotal.current ? 'up' : 'down'
+  lastTotal.current = total
+
+  const removeAnimated = (key: string) => {
+    setLeaving((l) => [...l, key])
+    setTimeout(() => {
+      removeLine(key)
+      setLeaving((l) => l.filter((k) => k !== key))
+    }, 260)
+  }
 
   const resetToCart = () => {
     setView('cart')
@@ -59,6 +72,7 @@ export function CartDrawer({
     e.preventDefault()
     if (!name.trim() || !phone.trim() || !address.trim()) {
       setError('Name, phone, and address are required.')
+      setShake((n) => n + 1)
       return
     }
     if (!lines.length) {
@@ -103,12 +117,15 @@ export function CartDrawer({
 
         {view === 'cart' && (
           <>
-            <div className="drawer-body">
+            <div className="drawer-body view-enter">
               {!lines.length ? (
                 <div className="empty-cart">Your cart is empty. Add something delicious.</div>
               ) : (
                 lines.map((line) => (
-                  <div key={line.key} className="cart-line">
+                  <div
+                    key={line.key}
+                    className={`cart-line ${leaving.includes(line.key) ? 'leaving' : ''}`}
+                  >
                     <div>
                       <strong>{line.name}</strong>
                       <div className="meta">
@@ -123,7 +140,9 @@ export function CartDrawer({
                         >
                           −
                         </button>
-                        <span>{line.qty}</span>
+                        <span key={line.qty} className="qty-num">
+                          {line.qty}
+                        </span>
                         <button
                           type="button"
                           onClick={() => updateQty(line.key, line.qty + 1)}
@@ -134,21 +153,25 @@ export function CartDrawer({
                         <button
                           type="button"
                           className="btn btn-ghost btn-sm"
-                          onClick={() => removeLine(line.key)}
+                          onClick={() => removeAnimated(line.key)}
                         >
                           Remove
                         </button>
                       </div>
                     </div>
-                    <strong>{formatPrice(line.unitPrice * line.qty)}</strong>
+                    <strong key={line.qty} className="price-pop">
+                      {formatPrice(line.unitPrice * line.qty)}
+                    </strong>
                   </div>
                 ))
               )}
             </div>
-            <div className="drawer-foot">
+            <div className="drawer-foot view-enter">
               <div className="total-row">
                 <span>Total</span>
-                <span>{formatPrice(total)}</span>
+                <span key={total} className={`price-pop ${totalDir}`}>
+                  {formatPrice(total)}
+                </span>
               </div>
               <button
                 type="button"
@@ -163,8 +186,12 @@ export function CartDrawer({
         )}
 
         {view === 'checkout' && (
-          <div className="checkout-panel drawer-body">
-            <form className="form-grid" onSubmit={submit}>
+          <div className="checkout-panel drawer-body view-enter">
+            <form
+              key={shake}
+              className={`form-grid ${shake ? 'shake' : ''}`}
+              onSubmit={submit}
+            >
               <label>
                 Name
                 <input value={name} onChange={(e) => setName(e.target.value)} required />
@@ -208,7 +235,11 @@ export function CartDrawer({
         )}
 
         {view === 'confirm' && order && (
-          <div className="confirm-panel drawer-body">
+          <div className="confirm-panel drawer-body view-enter">
+            <svg className="check-anim" width="72" height="72" viewBox="0 0 52 52" aria-hidden>
+              <circle className="check-circle" cx="26" cy="26" r="24" fill="none" />
+              <path className="check-tick" fill="none" d="M14 27l8 8 16-17" />
+            </svg>
             <p>Thanks, {order.customerName}!</p>
             <div className="order-no">{order.orderNo}</div>
             <p>We received your order. Track status below.</p>
@@ -218,7 +249,11 @@ export function CartDrawer({
                 const cls =
                   i < currentIdx ? 'done' : i === currentIdx ? 'current' : ''
                 return (
-                  <span key={s} className={`status-step ${cls}`}>
+                  <span
+                    key={s}
+                    className={`status-step ${cls}`}
+                    style={{ animationDelay: `${0.5 + i * 0.12}s` }}
+                  >
                     {s.replace(/_/g, ' ')}
                   </span>
                 )

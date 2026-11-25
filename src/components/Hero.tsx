@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import type { BrandId } from '../types'
 import { BrandSwitch } from './BrandSwitch'
 
@@ -12,6 +13,7 @@ export function Hero({
   onOrder: () => void
   hours: string
 }) {
+  const floatRef = useRef<HTMLDivElement>(null)
   const title =
     brand === 'kungfu' ? 'Kung Fu Pan Asian' : 'Canadian Classics'
   const tagline =
@@ -24,22 +26,37 @@ export function Hero({
       ? ['Rice', 'Gravy', 'Soup']
       : ['Pizza', 'Burger', 'Wings']
 
+  // Subtle mouse parallax on the floating bubbles (desktop only, CSS vars → no re-render).
+  const onMove = (e: React.MouseEvent<HTMLElement>) => {
+    const el = floatRef.current
+    if (!el) return
+    const r = e.currentTarget.getBoundingClientRect()
+    el.style.setProperty('--px', `${((e.clientX - r.left) / r.width - 0.5).toFixed(3)}`)
+    el.style.setProperty('--py', `${((e.clientY - r.top) / r.height - 0.5).toFixed(3)}`)
+  }
+
   return (
-    <section className="hero" aria-label="Hero">
-      <div className="floating-food" aria-hidden>
+    <section className="hero" aria-label="Hero" onMouseMove={onMove}>
+      <div className="floating-food" aria-hidden ref={floatRef}>
         {floats.map((label) => (
-          <div key={label} className="float-item" data-label={label} />
+          <div key={`${brand}-${label}`} className="float-slot">
+            <div className="float-item" data-label={label} />
+          </div>
         ))}
       </div>
       <div className="hero-inner">
         <BrandSwitch brand={brand} onChange={onBrand} />
-        <h1 className="hero-brand">{title}</h1>
-        <p className="hero-sub">{tagline}</p>
+        <h1 key={`t-${brand}`} className="hero-brand">
+          {title}
+        </h1>
+        <p key={`s-${brand}`} className="hero-sub">
+          {tagline}
+        </p>
         <div className="hero-meta">
           <div className="hours-pill">Open {hours}</div>
         </div>
         <div className="cta-row">
-          <button type="button" className="btn btn-primary" onClick={onOrder}>
+          <button type="button" className="btn btn-primary btn-pulse" onClick={onOrder}>
             Order Now
           </button>
           <a className="btn btn-ghost" href="#menu">
@@ -47,6 +64,9 @@ export function Hero({
           </a>
         </div>
       </div>
+      <a className="scroll-hint" href="#menu" aria-label="Scroll to menu">
+        <span />
+      </a>
     </section>
   )
 }

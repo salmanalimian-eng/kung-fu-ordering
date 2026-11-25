@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CartDrawer } from '../components/CartDrawer'
 import { Footer } from '../components/Footer'
@@ -11,6 +11,8 @@ import type { BrandId } from '../types'
 export function CustomerApp() {
   const [brand, setBrand] = useState<BrandId>('kungfu')
   const [cartOpen, setCartOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const [wipe, setWipe] = useState(0)
   const cart = useCart()
   const menu = useMenu()
   const settings = useSettings()
@@ -22,13 +24,27 @@ export function CustomerApp() {
   const tagline = brand === 'kungfu' ? 'Chinese & Thai' : 'Fast Food & Continental'
   const hours = `${settings.openTime} – ${settings.closeTime}`
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  const changeBrand = (b: BrandId) => {
+    if (b === brand) return
+    setBrand(b)
+    setWipe((n) => n + 1)
+  }
+
   return (
     <div className="app-shell" data-brand={brand}>
-      <header className="site-header">
+      {wipe > 0 ? <div key={wipe} className="brand-wipe" aria-hidden /> : null}
+      <header className={`site-header ${scrolled ? 'scrolled' : ''}`}>
         <div className="brand-mark">
-          <LogoPlaceholder brand={brand} />
+          <LogoPlaceholder key={brand} brand={brand} />
           <div className="brand-titles">
-            <div className="name">{brandName}</div>
+            <div key={brand} className="name swap-in">{brandName}</div>
             <div className="tag">{tagline}</div>
           </div>
         </div>
@@ -38,6 +54,7 @@ export function CustomerApp() {
           </Link>
           <button
             type="button"
+            data-cart-btn
             className={`icon-btn ${bounce ? 'bounce' : ''}`}
             aria-label={`Cart, ${count} items`}
             onClick={() => setCartOpen(true)}
@@ -53,7 +70,11 @@ export function CustomerApp() {
               <circle cx="18" cy="20" r="1.4" fill="currentColor" />
               <path d="M6 6L5 3H2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
             </svg>
-            {count > 0 ? <span className="badge">{count}</span> : null}
+            {count > 0 ? (
+              <span key={count} className="badge">
+                {count}
+              </span>
+            ) : null}
           </button>
         </div>
       </header>
@@ -61,7 +82,7 @@ export function CustomerApp() {
       <main>
         <Hero
           brand={brand}
-          onBrand={setBrand}
+          onBrand={changeBrand}
           hours={hours}
           onOrder={() => {
             document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })

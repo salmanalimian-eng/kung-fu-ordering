@@ -13,7 +13,7 @@ export function DealsCarousel({
   const loop = [...deals, ...deals]
 
   return (
-    <div className="deals-strip">
+    <div className="deals-strip fade-in">
       <div className="section-head">
         <h2>Deals</h2>
       </div>

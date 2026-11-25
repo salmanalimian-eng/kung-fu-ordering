@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { CC_CATEGORIES, KF_CATEGORIES } from '../data/menu'
 import type { BrandId, MenuItem } from '../types'
 import { DealsCarousel } from './DealsCarousel'
@@ -15,6 +15,7 @@ export function MenuSection({
 }) {
   const [query, setQuery] = useState('')
   const [activeCat, setActiveCat] = useState('')
+  const chipsRef = useRef<HTMLElement>(null)
 
   const categories = brand === 'kungfu' ? KF_CATEGORIES : CC_CATEGORIES
   const brandItems = useMemo(
@@ -70,6 +71,17 @@ export function MenuSection({
     return () => observer.disconnect()
   }, [byCategory])
 
+  // keep the active chip centred inside the horizontally scrolling chip bar
+  useEffect(() => {
+    const bar = chipsRef.current
+    const chip = bar?.querySelector<HTMLElement>('.chip.active')
+    if (!bar || !chip) return
+    bar.scrollTo({
+      left: chip.offsetLeft - bar.clientWidth / 2 + chip.clientWidth / 2,
+      behavior: 'smooth',
+    })
+  }, [activeCat])
+
   const scrollToCat = (cat: string) => {
     setActiveCat(cat)
     document.getElementById(`cat-${cat}`)?.scrollIntoView({ behavior: 'smooth' })
@@ -91,6 +103,7 @@ export function MenuSection({
       </div>
 
       <DealsCarousel
+        key={brand}
         deals={deals}
         onPick={(item) => {
           onJumpDeal?.(item)
@@ -100,7 +113,7 @@ export function MenuSection({
         }}
       />
 
-      <nav className="chips-bar" aria-label="Categories">
+      <nav className="chips-bar" aria-label="Categories" ref={chipsRef}>
         {categories
           .filter((c) => byCategory.has(c) || !query)
           .map((cat) => (
@@ -117,7 +130,7 @@ export function MenuSection({
 
       {[...byCategory.entries()].map(([cat, list]) => (
         <div key={cat} className="category-block" id={`cat-${cat}`}>
-          <h3>{cat}</h3>
+          <h3 className="cat-title">{cat}</h3>
           <div className="menu-grid">
             {list.map((item, idx) => (
               <ItemCard key={item.id} item={item} index={idx} />

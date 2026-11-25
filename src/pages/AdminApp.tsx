@@ -149,7 +149,7 @@ export function AdminApp() {
           </button>
         </nav>
 
-        <main className="admin-main">
+        <main key={tab} className="admin-main view-enter">
           {tab === 'orders' && (
             <>
               <h1>Live Orders</h1>
@@ -161,6 +161,7 @@ export function AdminApp() {
                     <article
                       key={order.id}
                       className={`order-card ${idx === 0 && order.status === 'received' ? 'new' : ''}`}
+                      style={{ animationDelay: `${Math.min(idx, 10) * 0.05}s` }}
                     >
                       <div className="order-top">
                         <div>
