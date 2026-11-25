@@ -558,19 +558,43 @@ img {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: var(--space-4);
+  padding: 0 0 var(--space-4);
   cursor: pointer;
   transition: transform 0.25s ease;
+  overflow: hidden;
 }
 
 .deal-card:hover {
   transform: translateY(-3px);
 }
 
+.deal-media {
+  height: 120px;
+  overflow: hidden;
+  margin-bottom: var(--space-3);
+}
+
+.deal-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .deal-card .deal-name {
   font-family: var(--display-font);
   font-size: 1.35rem;
-  margin: 0 0 var(--space-2);
+  margin: 0 var(--space-4) var(--space-2);
+}
+
+.deal-card .deal-desc {
+  margin-left: var(--space-4);
+  margin-right: var(--space-4);
+}
+
+.deal-card .deal-price {
+  margin-left: var(--space-4);
+  margin-right: var(--space-4);
 }
 
 [data-brand='canadian'] .deal-card .deal-name {
@@ -581,13 +605,14 @@ img {
 .deal-card .deal-desc {
   font-size: 0.85rem;
   color: var(--text-muted);
-  margin: 0 0 var(--space-3);
+  margin: 0 var(--space-4) var(--space-3);
   min-height: 2.6em;
 }
 
 .deal-card .deal-price {
   font-weight: 700;
   color: var(--accent);
+  margin: 0 var(--space-4);
 }
 
 /* —— Menu grid —— */
@@ -637,7 +662,7 @@ img {
 }
 
 .item-media {
-  height: 140px;
+  height: 160px;
   background: linear-gradient(
     135deg,
     color-mix(in srgb, var(--accent) 35%, var(--bg-soft)),
@@ -647,6 +672,14 @@ img {
   place-items: center;
   transition: transform 0.4s ease;
   position: relative;
+  overflow: hidden;
+}
+
+.item-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .item-media span {

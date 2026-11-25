@@ -21,16 +21,25 @@ Open **http://localhost:5173/** (customer) and **http://localhost:5173/admin** (
 
 - Dual brand theme switch (Kung Fu black/red `#D9261C` ↔ Canadian Classics yellow `#FFF200`)
 - Hero, floating food motion, fade-up text, sticky category chips + scroll-spy
-- Full Kung Fu + Canadian Classics menu (sizes, deals)
+- Full Kung Fu + Canadian Classics menu (sizes, deals) with local dish photos
 - Cart drawer, COD checkout, order numbers (`KF-1001`…), status flow
 - Admin: live orders + sound alert, brand tags, status controls, menu/deals stubs, settings
+
+## Food photos
+
+Menu cards use local images under `public/food/` (downloaded for this prototype). Sources:
+
+- [Unsplash](https://unsplash.com/license) — free to use under the Unsplash License
+- [Pexels](https://www.pexels.com/license/) — free to use under the Pexels License
+
+Photos are matched by dish type (pizza → pizza, burger → burger, Chinese chicken gravies → glazed chicken-in-sauce, etc.). Owner-provided restaurant photography can replace these in Phase 3.
 
 ## Out of scope (later)
 
 - Kotlin app
 - Real Firebase/Supabase production backend
 - JazzCash / Easypaisa / card payments
-- Real logo & food photography (placeholders for now)
+- Real logo assets (logo placeholders remain until owner files arrive)
 
 ## Open questions
 

@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import { foodImageFor } from '../data/foodImages'
 import { formatPrice } from '../data/menu'
 import { addToCart } from '../store/storage'
 import type { MenuItem } from '../types'
 
 export function ItemCard({ item, index }: { item: MenuItem; index: number }) {
   const [sizeIdx, setSizeIdx] = useState(0)
+  const [imgFailed, setImgFailed] = useState(false)
   const size = item.sizes[sizeIdx] ?? item.sizes[0]
   const initial = item.name
     .split(/\s+/)
@@ -12,6 +14,7 @@ export function ItemCard({ item, index }: { item: MenuItem; index: number }) {
     .map((w) => w[0])
     .join('')
     .toUpperCase()
+  const imageSrc = foodImageFor(item)
 
   return (
     <article
@@ -19,7 +22,16 @@ export function ItemCard({ item, index }: { item: MenuItem; index: number }) {
       style={{ animationDelay: `${Math.min(index, 8) * 0.04}s` }}
     >
       <div className="item-media">
-        <span>{initial || '•'}</span>
+        {!imgFailed ? (
+          <img
+            src={imageSrc}
+            alt={item.name}
+            loading="lazy"
+            onError={() => setImgFailed(true)}
+          />
+        ) : (
+          <span>{initial || '•'}</span>
+        )}
       </div>
       <div className="item-body">
         <h4>{item.name}</h4>

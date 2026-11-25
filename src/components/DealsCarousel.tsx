@@ -1,3 +1,4 @@
+import { foodImageFor } from '../data/foodImages'
 import { formatPrice } from '../data/menu'
 import type { MenuItem } from '../types'
 
@@ -27,6 +28,9 @@ export function DealsCarousel({
               role="button"
               tabIndex={0}
             >
+              <div className="deal-media">
+                <img src={foodImageFor(deal)} alt={deal.name} loading="lazy" />
+              </div>
               <h3 className="deal-name">{deal.name}</h3>
               <p className="deal-desc">{deal.description}</p>
               <div className="deal-price">{formatPrice(deal.sizes[0].price)}</div>
